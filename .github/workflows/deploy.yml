@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  SSH_OPTS: -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=3
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -16,9 +19,14 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts 2>/dev/null
+          echo "Host *
+            StrictHostKeyChecking no
+            ConnectTimeout 10
+            ServerAliveInterval 5
+            ServerAliveCountMax 3" > ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
-      - name: Sync workspace
+      - name: Sync files
         run: |
           rsync -avz --delete \
             --exclude='node_modules' --exclude='memory/' \
@@ -30,19 +38,23 @@ jobs:
             --exclude='memory/' --exclude='*.jpg' --exclude='*.png' \
             workspace-melisa/ root@${{ secrets.SERVER_IP }}:/home/openclaw/.openclaw/workspace-melisa/
 
-      - name: Sync integrations
-        run: |
           rsync -avz \
             --exclude='node_modules' --exclude='*.db' \
             --exclude='*.db-shm' --exclude='*.db-wal' \
             --exclude='package-lock.json' \
             integrations/ root@${{ secrets.SERVER_IP }}:/home/openclaw/.openclaw/integrations/
 
-      - name: Sync Docker config
-        run: |
           rsync -avz docker/docker-compose.yml root@${{ secrets.SERVER_IP }}:/home/openclaw/docker-compose.yml
           rsync -avz docker/Dockerfile root@${{ secrets.SERVER_IP }}:/home/openclaw/Dockerfile
 
       - name: Restart containers
         run: |
-          ssh root@${{ secrets.SERVER_IP }} "pkill -9 -f openclaw-gatewa 2>/dev/null; sleep 2; cd /home/openclaw && docker compose down && docker compose up -d --build && sleep 10 && docker ps --format 'table {{.Names}}\t{{.Status}}'"
+          ssh root@${{ secrets.SERVER_IP }} 'bash -s' << 'SCRIPT'
+          pkill -9 -f openclaw-gatewa 2>/dev/null || true
+          sleep 2
+          cd /home/openclaw
+          docker compose down 2>/dev/null || true
+          docker compose up -d --build 2>&1
+          sleep 10
+          docker ps --format "table {{.Names}}\t{{.Status}}"
+          SCRIPT
