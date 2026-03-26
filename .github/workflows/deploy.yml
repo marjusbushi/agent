@@ -45,4 +45,4 @@ jobs:
 
       - name: Restart containers
         run: |
-          ssh root@${{ secrets.SERVER_IP }} "cd /home/openclaw && docker compose down && docker compose up -d --build && sleep 8 && docker ps --format 'table {{.Names}}\t{{.Status}}'"
+          ssh root@${{ secrets.SERVER_IP }} "pkill -9 -f openclaw-gatewa 2>/dev/null; sleep 2; cd /home/openclaw && docker compose down && docker compose up -d --build && sleep 10 && docker ps --format 'table {{.Names}}\t{{.Status}}'"
