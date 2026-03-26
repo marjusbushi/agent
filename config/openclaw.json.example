@@ -1,0 +1,185 @@
+{
+  "$schema": "https://openclaw.ai/schemas/config.json",
+  "meta": {
+    "lastTouchedVersion": "2026.3.13",
+    "lastTouchedAt": "2026-03-21T10:00:51.056Z"
+  },
+  "env": {
+    "vars": {
+      "ZOHO_ACCESS_TOKEN": "YOUR_ZOHO_ACCESS_TOKEN_HERE",
+      "ZOHO_REFRESH_TOKEN": "YOUR_ZOHO_REFRESH_TOKEN_HERE",
+      "ZOHO_CLIENT_ID": "YOUR_ZOHO_CLIENT_ID_HERE",
+      "ZOHO_CLIENT_SECRET": "YOUR_ZOHO_CLIENT_SECRET_HERE",
+      "ZOHO_ORG_ID": "YOUR_ZOHO_ORG_ID_HERE",
+      "ZOHO_API_DOMAIN": "YOUR_ZOHO_API_DOMAIN_HERE",
+      "ZOHO_ACCOUNTS_SERVER": "YOUR_ZOHO_ACCOUNTS_SERVER_HERE",
+      "MOONSHOT_API_KEY": "YOUR_MOONSHOT_API_KEY_HERE",
+      "KIMI_API_KEY": "YOUR_KIMI_API_KEY_HERE"
+    }
+  },
+  "logging": {
+    "level": "info",
+    "file": "/home/openclaw/logs/openclaw.log"
+  },
+  "agents": {
+    "defaults": {
+      "model": "moonshot/kimi-k2.5",
+      "models": {
+        "anthropic/claude-opus-4-6": {
+          "alias": "opus",
+          "params": {
+            "cacheRetention": "short"
+          }
+        },
+        "openai/gpt-4o": {
+          "alias": "gpt4o",
+          "params": {}
+        },
+        "openai/gpt-4o-mini": {
+          "alias": "mini",
+          "params": {}
+        },
+        "anthropic/claude-sonnet-4-6": {
+          "alias": "sonnet"
+        },
+        "anthropic/claude-haiku-4-5": {
+          "alias": "haiku"
+        },
+        "google/gemini-3-flash-preview": {
+          "alias": "gemini"
+        },
+        "moonshot/kimi-k2.5": {
+          "alias": "kimi"
+        }
+      },
+      "contextPruning": {
+        "mode": "cache-ttl",
+        "ttl": "1h"
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "heartbeat": {
+        "every": "30m"
+      }
+    },
+    "list": [
+      {
+        "id": "main"
+      },
+      {
+        "id": "flash",
+        "name": "flash",
+        "workspace": "/home/openclaw/.openclaw/workspace",
+        "agentDir": "/home/openclaw/.openclaw/agents/flash/agent",
+        "model": "google/gemini-3-flash-preview"
+      },
+      {
+        "id": "gpt4o",
+        "name": "gpt4o",
+        "workspace": "/home/openclaw/.openclaw/workspace",
+        "agentDir": "/home/openclaw/.openclaw/agents/gpt4o/agent",
+        "model": "openai/gpt-4o"
+      },
+      {
+        "id": "sonnet",
+        "name": "sonnet",
+        "workspace": "/home/openclaw/.openclaw/workspace",
+        "agentDir": "/home/openclaw/.openclaw/agents/sonnet/agent",
+        "model": "anthropic/claude-sonnet-4-6"
+      },
+      {
+        "id": "opus",
+        "name": "opus",
+        "workspace": "/home/openclaw/.openclaw/workspace",
+        "agentDir": "/home/openclaw/.openclaw/agents/opus/agent",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      {
+        "id": "melisa",
+        "name": "melisa",
+        "workspace": "/home/openclaw/.openclaw/workspace-melisa",
+        "agentDir": "/home/openclaw/.openclaw/agents/melisa/agent",
+        "model": "moonshot/kimi-k2.5",
+        "identity": {
+          "name": "Melisa",
+          "emoji": "\ud83d\udc57"
+        }
+      },
+      {
+        "id": "kimi",
+        "name": "kimi",
+        "workspace": "/home/openclaw/.openclaw/workspace",
+        "agentDir": "/home/openclaw/.openclaw/agents/kimi/agent",
+        "model": "moonshot/kimi-k2.5"
+      }
+    ]
+  },
+  "tools": {},
+  "bindings": [
+    {
+      "type": "route",
+      "agentId": "melisa",
+      "match": {
+        "channel": "telegram",
+        "accountId": "melisa"
+      }
+    }
+  ],
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "pairing",
+      "groupPolicy": "allowlist",
+      "streaming": "partial",
+      "accounts": {
+        "default": {
+          "dmPolicy": "pairing",
+          "allowFrom": [
+            "1998256425"
+          ],
+          "groupAllowFrom": [
+            "1998256425"
+          ],
+          "groupPolicy": "allowlist",
+          "streaming": "partial"
+        },
+        "melisa": {
+          "name": "Melisa",
+          "enabled": true,
+          "dmPolicy": "open",
+          "botToken": "YOUR_TELEGRAM_BOT_TOKEN_HERE",
+          "allowFrom": [
+            "*"
+          ],
+          "groupPolicy": "disabled",
+          "streaming": "partial"
+        }
+      }
+    }
+  },
+  "gateway": {
+    "port": 18789,
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": [
+        "http://localhost:18789",
+        "http://127.0.0.1:18789",
+        "https://agent.zeroabsolute.dev",
+        "wss://agent.zeroabsolute.dev"
+      ]
+    },
+    "auth": {
+      "mode": "token",
+      "token": "YOUR_GATEWAY_TOKEN_HERE"
+    }
+  },
+  "skills": {}
+}

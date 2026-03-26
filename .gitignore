@@ -1,0 +1,41 @@
+# Secrets
+.env
+*.env.local
+config/openclaw.json
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+*.tar.gz
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sessions & runtime
+agents/*/sessions/
+training-data/
+delivery-queue/
+media/
+canvas/
+browser/
+cron/
+devices/
+credentials/
+identity/
+memory/
+telegram/
+*.bak
+update-check.json
