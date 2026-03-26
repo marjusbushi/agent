@@ -1,0 +1,48 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Sync workspace
+        run: |
+          rsync -avz --delete \
+            --exclude='node_modules' --exclude='memory/' \
+            --exclude='snapshots/' --exclude='*.db' \
+            --exclude='*.png' --exclude='*.jpg' \
+            workspace/ root@${{ secrets.SERVER_IP }}:/home/openclaw/.openclaw/workspace/
+
+          rsync -avz --delete \
+            --exclude='memory/' --exclude='*.jpg' --exclude='*.png' \
+            workspace-melisa/ root@${{ secrets.SERVER_IP }}:/home/openclaw/.openclaw/workspace-melisa/
+
+      - name: Sync integrations
+        run: |
+          rsync -avz \
+            --exclude='node_modules' --exclude='*.db' \
+            --exclude='*.db-shm' --exclude='*.db-wal' \
+            --exclude='package-lock.json' \
+            integrations/ root@${{ secrets.SERVER_IP }}:/home/openclaw/.openclaw/integrations/
+
+      - name: Sync Docker config
+        run: |
+          rsync -avz docker/docker-compose.yml root@${{ secrets.SERVER_IP }}:/home/openclaw/docker-compose.yml
+          rsync -avz docker/Dockerfile root@${{ secrets.SERVER_IP }}:/home/openclaw/Dockerfile
+
+      - name: Restart containers
+        run: |
+          ssh root@${{ secrets.SERVER_IP }} "cd /home/openclaw && docker compose down && docker compose up -d --build && sleep 8 && docker ps --format 'table {{.Names}}\t{{.Status}}'"
