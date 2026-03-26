@@ -3,6 +3,7 @@
  * Merr ngjarje nga Kommo, logon, dhe njofton Melisa-n
  */
 const express = require("express");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const db = require("./db");
@@ -10,6 +11,55 @@ const kommoApi = require("./kommo-api");
 const { initBot, notifyNewMessage, notifyNewLead } = require("./melisa-bot");
 
 const app = express();
+
+// --- Rate Limiting (in-memory, per IP) ---
+const rateLimiter = new Map();
+const RATE_LIMIT = { windowMs: 60000, maxRequests: 60 };
+
+function checkRateLimit(ip) {
+    const now = Date.now();
+    const record = rateLimiter.get(ip) || { count: 0, resetAt: now + RATE_LIMIT.windowMs };
+    if (now > record.resetAt) {
+        record.count = 0;
+        record.resetAt = now + RATE_LIMIT.windowMs;
+    }
+    record.count++;
+    rateLimiter.set(ip, record);
+    return record.count <= RATE_LIMIT.maxRequests;
+}
+
+// Cleanup old entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, record] of rateLimiter) {
+        if (now > record.resetAt + RATE_LIMIT.windowMs) rateLimiter.delete(ip);
+    }
+}, 300000);
+
+app.use((req, res, next) => {
+    const ip = req.headers["x-real-ip"] || req.ip;
+    if (!checkRateLimit(ip)) {
+        console.log(`[RateLimit] Blocked: ${ip}`);
+        return res.status(429).json({ error: "Too many requests" });
+    }
+    next();
+});
+
+// --- Webhook Signature Verification ---
+const WEBHOOK_SECRET = process.env.KOMMO_WEBHOOK_SECRET;
+
+function verifyWebhookSignature(req) {
+    if (!WEBHOOK_SECRET) return true;
+    const signature = req.headers["x-signature"] || req.headers["x-hook-signature"];
+    if (!signature) return false;
+    const hmac = crypto.createHmac("sha256", WEBHOOK_SECRET);
+    hmac.update(JSON.stringify(req.body));
+    return crypto.timingSafeEqual(
+        Buffer.from(signature, "hex"),
+        Buffer.from(hmac.digest("hex"), "hex")
+    );
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -35,6 +85,11 @@ const melisaBot = initBot();
 // --- Webhook endpoints ---
 app.post(["/webhooks/kommo", "/webhook", "/webhooks"], async (req, res) => {
     try {
+        if (WEBHOOK_SECRET && !verifyWebhookSignature(req)) {
+            console.log("[Webhook] Invalid signature from:", req.headers["x-real-ip"] || req.ip);
+            return res.status(401).json({ error: "Invalid signature" });
+        }
+
         const payload = req.body;
         console.log("[Webhook] Ngjarje:", JSON.stringify(payload).substring(0, 200));
 
