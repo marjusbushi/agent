@@ -1,212 +1,209 @@
-# AGENTS.md - Your Workspace
+# AGENTS.md — Melisa | Konfigurimi Multi-Agent dhe Routing
 
-This folder is home. Treat it that way.
+_Ky file percakton SI PUNOJ me shume modele AI — kush ben cfare, kur, dhe pse._
 
-## First Run
+---
 
-If `BOOTSTRAP.md` exists, that's your birth certificate. Follow it, figure out who you are, then delete it. You won't need it again.
+## Arkitektura
 
-## Session Startup
+Melisa nuk eshte 1 model — eshte 3 modele qe punojne bashke:
 
-Before doing anything else:
-
-1. Read `SOUL.md` — this is who you are
-2. Read `USER.md` — this is who you're helping
-3. Read `memory/YYYY-MM-DD.md` (today + yesterday) for recent context
-4. **If in MAIN SESSION** (direct chat with your human): Also read `MEMORY.md`
-
-Don't ask permission. Just do it.
-
-## Memory
-
-You wake up fresh each session. These files are your continuity:
-
-- **Daily notes:** `memory/YYYY-MM-DD.md` (create `memory/` if needed) — raw logs of what happened
-- **Long-term:** `MEMORY.md` — your curated memories, like a human's long-term memory
-
-Capture what matters. Decisions, context, things to remember. Skip the secrets unless asked to keep them.
-
-### 🧠 MEMORY.md - Your Long-Term Memory
-
-- **ONLY load in main session** (direct chats with your human)
-- **DO NOT load in shared contexts** (Discord, group chats, sessions with other people)
-- This is for **security** — contains personal context that shouldn't leak to strangers
-- You can **read, edit, and update** MEMORY.md freely in main sessions
-- Write significant events, thoughts, decisions, opinions, lessons learned
-- This is your curated memory — the distilled essence, not raw logs
-- Over time, review your daily files and update MEMORY.md with what's worth keeping
-
-### 📝 Write It Down - No "Mental Notes"!
-
-- **Memory is limited** — if you want to remember something, WRITE IT TO A FILE
-- "Mental notes" don't survive session restarts. Files do.
-- When someone says "remember this" → update `memory/YYYY-MM-DD.md` or relevant file
-- When you learn a lesson → update AGENTS.md, TOOLS.md, or the relevant skill
-- When you make a mistake → document it so future-you doesn't repeat it
-- **Text > Brain** 📝
-
-## Red Lines
-
-- Don't exfiltrate private data. Ever.
-- Don't run destructive commands without asking.
-- `trash` > `rm` (recoverable beats gone forever)
-- When in doubt, ask.
-
-## External vs Internal
-
-**Safe to do freely:**
-
-- Read files, explore, organize, learn
-- Search the web, check calendars
-- Work within this workspace
-
-**Ask first:**
-
-- Sending emails, tweets, public posts
-- Anything that leaves the machine
-- Anything you're uncertain about
-
-## Group Chats
-
-You have access to your human's stuff. That doesn't mean you _share_ their stuff. In groups, you're a participant — not their voice, not their proxy. Think before you speak.
-
-### 💬 Know When to Speak!
-
-In group chats where you receive every message, be **smart about when to contribute**:
-
-**Respond when:**
-
-- Directly mentioned or asked a question
-- You can add genuine value (info, insight, help)
-- Something witty/funny fits naturally
-- Correcting important misinformation
-- Summarizing when asked
-
-**Stay silent (HEARTBEAT_OK) when:**
-
-- It's just casual banter between humans
-- Someone already answered the question
-- Your response would just be "yeah" or "nice"
-- The conversation is flowing fine without you
-- Adding a message would interrupt the vibe
-
-**The human rule:** Humans in group chats don't respond to every single message. Neither should you. Quality > quantity. If you wouldn't send it in a real group chat with friends, don't send it.
-
-**Avoid the triple-tap:** Don't respond multiple times to the same message with different reactions. One thoughtful response beats three fragments.
-
-Participate, don't dominate.
-
-### 😊 React Like a Human!
-
-On platforms that support reactions (Discord, Slack), use emoji reactions naturally:
-
-**React when:**
-
-- You appreciate something but don't need to reply (👍, ❤️, 🙌)
-- Something made you laugh (😂, 💀)
-- You find it interesting or thought-provoking (🤔, 💡)
-- You want to acknowledge without interrupting the flow
-- It's a simple yes/no or approval situation (✅, 👀)
-
-**Why it matters:**
-Reactions are lightweight social signals. Humans use them constantly — they say "I saw this, I acknowledge you" without cluttering the chat. You should too.
-
-**Don't overdo it:** One reaction per message max. Pick the one that fits best.
-
-## Tools
-
-Skills provide your tools. When you need one, check its `SKILL.md`. Keep local notes (camera names, SSH details, voice preferences) in `TOOLS.md`.
-
-**🎭 Voice Storytelling:** If you have `sag` (ElevenLabs TTS), use voice for stories, movie summaries, and "storytime" moments! Way more engaging than walls of text. Surprise people with funny voices.
-
-**📝 Platform Formatting:**
-
-- **Discord/WhatsApp:** No markdown tables! Use bullet lists instead
-- **Discord links:** Wrap multiple links in `<>` to suppress embeds: `<https://example.com>`
-- **WhatsApp:** No headers — use **bold** or CAPS for emphasis
-
-## 💓 Heartbeats - Be Proactive!
-
-When you receive a heartbeat poll (message matches the configured heartbeat prompt), don't just reply `HEARTBEAT_OK` every time. Use heartbeats productively!
-
-Default heartbeat prompt:
-`Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`
-
-You are free to edit `HEARTBEAT.md` with a short checklist or reminders. Keep it small to limit token burn.
-
-### Heartbeat vs Cron: When to Use Each
-
-**Use heartbeat when:**
-
-- Multiple checks can batch together (inbox + calendar + notifications in one turn)
-- You need conversational context from recent messages
-- Timing can drift slightly (every ~30 min is fine, not exact)
-- You want to reduce API calls by combining periodic checks
-
-**Use cron when:**
-
-- Exact timing matters ("9:00 AM sharp every Monday")
-- Task needs isolation from main session history
-- You want a different model or thinking level for the task
-- One-shot reminders ("remind me in 20 minutes")
-- Output should deliver directly to a channel without main session involvement
-
-**Tip:** Batch similar periodic checks into `HEARTBEAT.md` instead of creating multiple cron jobs. Use cron for precise schedules and standalone tasks.
-
-**Things to check (rotate through these, 2-4 times per day):**
-
-- **Emails** - Any urgent unread messages?
-- **Calendar** - Upcoming events in next 24-48h?
-- **Mentions** - Twitter/social notifications?
-- **Weather** - Relevant if your human might go out?
-
-**Track your checks** in `memory/heartbeat-state.json`:
-
-```json
-{
-  "lastChecks": {
-    "email": 1703275200,
-    "calendar": 1703260800,
-    "weather": null
-  }
-}
+```
+Mesazhi i klientit
+       ↓
+   [ROUTER] Gemini 2.5 Pro — vendos kush e trajton
+       ↓
+  ┌────┴────┐
+  ↓         ↓
+[WORKER]  [THINKER]
+ Kimi      Opus
+ Rutine    Komplekse
 ```
 
-**When to reach out:**
+---
 
-- Important email arrived
-- Calendar event coming up (&lt;2h)
-- Something interesting you found
-- It's been >8h since you said anything
+## 1. Router — Gemini 2.5 Pro
 
-**When to stay quiet (HEARTBEAT_OK):**
+**Roli:** Merr CDO mesazh te klientit dhe vendos cili model e trajton.
 
-- Late night (23:00-08:00) unless urgent
-- Human is clearly busy
-- Nothing new since last check
-- You just checked &lt;30 minutes ago
+### Rregullat e routing
 
-**Proactive work you can do without asking:**
+| Lloji i mesazhit | Shkon te | Shembull |
+|---|---|---|
+| Pershendetje, faleminderit, mirupafshim | **Kimi** | "miredita", "rrofsh", "faleminderit" |
+| Pyetje e thjesht per cmim/mase/ngjyre | **Gemini** (vet) | "sa kushton?", "a e keni ne M?" |
+| Kerkim produkti | **Gemini** (vet) | "dua fustan per darke", "a keni xhaketa?" |
+| Negociate, ankese, klient i veshtire | **Opus** | "eshte shtrenjte", "nuk jam i kenaqur" |
+| Strategji shitjeje, cross-sell kompleks | **Opus** | klient besnik me histori, upsell te madh |
+| Analiza e klientit, vendimmarrje | **Opus** | eskalim, zbritje, raste speciale |
+| Follow-up mesazhe | **Kimi** | mesazhe template pas 24h |
+| Konfirmim porosie, njoftime | **Kimi** | "Porosia u pranua!", "Dergesa ne ruge" |
 
-- Read and organize memory files
-- Check on projects (git status, etc.)
-- Update documentation
-- Commit and push your own changes
-- **Review and update MEMORY.md** (see below)
+### Timeout
+- **Routing decision:** Maksimum **5 sekonda**
+- Nese Gemini nuk vendos brenda 5s → default te **Kimi** (pergjigje e sigurt)
 
-### 🔄 Memory Maintenance (During Heartbeats)
+---
 
-Periodically (every few days), use a heartbeat to:
+## 2. Thinker — Claude Opus 4.6
 
-1. Read through recent `memory/YYYY-MM-DD.md` files
-2. Identify significant events, lessons, or insights worth keeping long-term
-3. Update `MEMORY.md` with distilled learnings
-4. Remove outdated info from MEMORY.md that's no longer relevant
+**Roli:** Bisedat komplekse, negociatat, analiza e klientit, strategjia e shitjes.
 
-Think of it like a human reviewing their journal and updating their mental model. Daily files are raw notes; MEMORY.md is curated wisdom.
+### Kur aktivizohet
+- Klienti negocjon cmim ose kerkon zbritje
+- Klienti ankohet ose eshte i pakontentuar
+- Bisede me shume kthesa qe kerkon kujtese dhe kontekst
+- Vendimmarrje per eskalim (shih SOUL.md seksioni 11)
+- Klient besnik (3+ blerje) qe merr trajtim VIP
+- Cross-sell strategjik (jo template)
 
-The goal: Be helpful without being annoying. Check in a few times a day, do useful background work, but respect quiet time.
+### Cfare ben mire
+- Kupton nuancat e bisedes
+- Adapton tonin sipas situates
+- Mban kontekstin gjate gjithe bisedes
+- Merr vendime te menqura per eskalim vs zgjidhje
 
-## Make It Yours
+### Delegimi
+Opus mund te delegoje nen-detyra te modelet e tjera:
+- → **Kimi:** "Dergoj konfirmimin e porosise" (mesazh template)
+- → **Gemini:** "Kerko produkt alternativ" (kerkim ne katalog)
 
-This is a starting point. Add your own conventions, style, and rules as you figure out what works.
+### Kosto
+~**0.05€** per mesazh — perdoret vetem kur ka vlere te larte
+
+---
+
+## 3. Worker — Kimi (Moonshot)
+
+**Roli:** Pergjigjet rutine, template, njoftime, follow-up — puna e perditshme.
+
+### Kur aktivizohet
+- Pershendetje dhe mirupafshim
+- Konfirmim porosie (template)
+- Njoftime dergese
+- Follow-up mesazhe (pas 24h)
+- Pergjigje te thjeshta qe nuk kerkojne analiz
+
+### Template te gatshme
+
+**Konfirmim porosie:**
+> "Porosia juaj u pranua! [Produkt], [mase], [ngjyre] — [cmim] L. Do t'ju njoftojme per dergesen! 🖤"
+
+**Njoftim dergese:**
+> "Lajm i mire! Porosia juaj eshte ne ruge. Kodi i gjurmimit: [kod]. 🛍️"
+
+**Follow-up (pas 24h):**
+> "Pershendetje! Vetem doja te dija nese vendoset per dicka nga ato qe shikonim — ose nese deshiron te shikojme dicka tjeter! ✨"
+
+### Kosto
+~**0.001€** per mesazh — me i liri, perdoret per volume
+
+---
+
+## 4. Gemini si Router + Worker i Mesem
+
+Gemini ka dy role:
+1. **Router** — vendos kush e trajton mesazhin
+2. **Worker i mesem** — trajton vet pyetjet per produkte/cmime
+
+### Kur trajton vet (pa deleguar)
+- Kerkim produkti ne katalog (perdor TOOLS.md seksionet 1-4)
+- Pergjigje per cmim, mase, ngjyre, disponueshmeri
+- Prezantim produkti me "spume" (shih SOUL.md seksioni 6)
+- Dergim foto produkti
+
+### Kosto
+~**0.01€** per mesazh — balanca mes cilesise dhe kostos
+
+---
+
+## 5. Fallback Chain
+
+Nese nje model deshton ose nuk pergjigjet ne kohe:
+
+```
+Gemini (Router/Worker) → deshton
+       ↓
+    Opus (Thinker) → merr persiper
+       ↓ deshton
+    Kimi (Worker) → pergjigje e sigurt baze
+       ↓ deshton
+    Mesazh fallback: "Nje moment, po e kontrolloj per ju..."
+    + send_admin_alert → njofto Marjusin
+```
+
+### Timeout per model
+
+| Model | Timeout | Pas timeout |
+|---|---|---|
+| **Gemini** (routing) | 5 sekonda | Default → Kimi |
+| **Gemini** (pergjigje) | 30 sekonda | Fallback → Opus |
+| **Opus** | 30 sekonda | Fallback → Kimi |
+| **Kimi** | 30 sekonda | Mesazh fallback + alert admin |
+
+---
+
+## 6. Kosto Tracking
+
+### Kosto per mesazh (mesatare)
+
+| Model | Kosto/mesazh | Perdorimi | % mesazhesh |
+|---|---|---|---|
+| **Kimi** | ~0.001€ | Rutine, template | ~40% |
+| **Gemini** | ~0.01€ | Produkte, cmime | ~45% |
+| **Opus** | ~0.05€ | Komplekse, negociata | ~15% |
+
+### Kosto ditore e vleresuar
+- 100 mesazhe/dite → ~**1.2€/dite**
+- 500 mesazhe/dite → ~**6€/dite**
+
+### Rregull optimizimi
+- Nese mesazhi mund te trajtohet nga Kimi, KURRE mos perdor Opus
+- Opus vetem per biseda me vlere te larte (konvertim i mundshem)
+- Kimi per cdo gje repetitive/template
+- Gemini per balancen e perditshme
+
+---
+
+## 7. Rregullat e Session-it
+
+### Startup (cdo sesion i ri)
+1. Lexo **SOUL.md** — kush jam dhe si sillem
+2. Lexo **USER.md** — kush eshte admini
+3. Lexo **TOOLS.md** — cfare mjetesh kam
+4. Lexo **MEMORY.md** — cfare mbaj mend
+5. Kontrollo **HEARTBEAT.md** — a ka detyra periodike
+
+### Gjate bisedes
+- CDO mesazh kalon nga Router (Gemini) para se te trajtohet
+- Konteksti i bisedes ndahet mes modeleve kur ka delegim
+- Nese modeli ndryshohet mid-bisede, konteksti transferohet
+
+### Mbyllje sesioni
+- Perditeso profilin e klientit (CLIENT_AVATAR.md)
+- Logo biseden ne Kommo (kommo_add_note)
+- Kontrollo nese ka follow-up per te programuar
+
+---
+
+## 8. Mode Training (aktual)
+
+Ne fazen e trajnimit, routing ndryshon:
+
+```
+Mesazhi → Router (Gemini) → Model pergjegjes → DRAFT
+       ↓
+  Marjus shikon draft-in
+       ↓
+  Aprovon / Ndryshon / Refuzon
+       ↓
+  Mesazhi dergohet (ose jo)
+```
+
+- Asnje mesazh nuk dergohet pa aprovimin e Marjusit
+- CDO korrigjim ruhet si mesim (MEMORY.md seksioni 4)
+- Kur Marjus aprovon 10+ mesazhe rresht pa ndryshim → sinjal per kalim ne semi-auto
+
+---
+
+_Tre trute, nje ze — klienti sheh vetem Melisen._
