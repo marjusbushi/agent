@@ -43,6 +43,7 @@ def _request(endpoint, params=None):
     req = urllib.request.Request(url, headers={
         "Authorization": f"Bearer {TOKEN}",
         "Accept": "application/json",
+        "User-Agent": "MelisaBot/1.0 (OpenClaw; ZeroAbsolute)",
     })
 
     try:
@@ -140,6 +141,7 @@ def _post(endpoint, data):
         "Authorization": f"Bearer {TOKEN}",
         "Accept": "application/json",
         "Content-Type": "application/json",
+        "User-Agent": "MelisaBot/1.0 (OpenClaw; ZeroAbsolute)",
     })
 
     try:
