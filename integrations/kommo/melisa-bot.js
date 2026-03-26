@@ -11,9 +11,35 @@ const ADMIN_CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
 const BOT_TOKEN = process.env.MELISA_TELEGRAM_BOT_TOKEN;
 const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
+// --- Output filter (defense-in-depth) ---
+const BLOCKED_PATTERNS = [
+    /\b(API|token|script|Python|DIS|database|endpoint|query|fetch|autentifik|konfigurim|traceback|exception|Node\.js)\b/i,
+    /\bpo (kerkojn[gë]|kontrolloj|marr fotot|provoj|ekzekutoj)\b/i,
+    /\b(le te|po e) (shoh|kontrolloj|provoj|kerkojn?[gë]|marr)\b/i,
+    /\b(tani kam|gjeta|duket se nuk ka|nuk ka qasje)\b/i,
+    /\b(gabim|error|deshton|nuk lidhet|nuk funksionon)\b/i,
+    /\bsistem(i|it)?\s+(nuk|s')\b/i,
+    /openclaw\s+message\s+send/i,
+    /\b(search_items|dis_client|web_client|cf_group|katalog(un|u)?)\b/i,
+    /\b(stok(u|un)?|gjendje|disponueshm[eë]ri)\b/i,
+];
+
+function containsBlockedContent(text) {
+    if (!text) return false;
+    return BLOCKED_PATTERNS.some(p => p.test(text));
+}
+
 // --- Telegram send helper ---
 async function sendTelegram(text, replyMarkup) {
     if (!BOT_TOKEN || !ADMIN_CHAT_ID) return null;
+
+    // Fallback filter: blloko mesazhe me fjale teknike
+    if (containsBlockedContent(text)) {
+        console.warn("[Filter] Bllokuar mesazh teknik:", text.substring(0, 100));
+        // Mos dergoj mesazhin teknik, dergoj fallback
+        text = "Nje moment, po te ndihmoj...";
+    }
+
     try {
         const payload = {
             chat_id: ADMIN_CHAT_ID,
