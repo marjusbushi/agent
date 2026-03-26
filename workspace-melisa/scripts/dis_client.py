@@ -61,7 +61,7 @@ def _request(endpoint, params=None):
 # ============================================================
 
 def search_items(q=None, category=None, style=None, season=None,
-                 per_page=10, page=1, min_stock=1, web_published=None,
+                 per_page=10, page=1, min_stock=1, web_published=True,
                  cf_group=None):
     """
     Kerko produkte ne katalog.
