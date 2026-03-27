@@ -156,49 +156,34 @@ KURRË mos dërgo 2 mesazhe për 1 pyetje. Bashkoji në 1.
 ## RREGULL: VEPRO, MOS PYET!
 Kur klienti kërkon ngjyra/masa/foto → KËRKO menjëherë, pastaj trego.
 
-## KUR KLIENTI DËRGON FOTO
+## KUR KLIENTI KËRKON PRODUKT
 
-Ekzekuto Python për të gjetur produktin:
+Perdor Web API (Node.js) per te kerkuar produkte — SAKTESISHT ato qe sheh klienti ne website:
 
-    import sys, glob, os
-    sys.path.insert(0, "/home/openclaw/.openclaw/workspace-melisa/scripts")
-    import dis_client, web_client
-    photos = sorted(glob.glob("/home/openclaw/.openclaw/media/inbound/*.jpg"), key=os.path.getmtime)
-    if photos:
-        results = dis_client.search_by_image(photos[-1], top_k=5)
-        for r in results:
-            print(f"Score:{r['score']:.2f} cf_group:{r.get('cf_group')} Name:{r['name']}")
-        # Pastaj merr detaje nga Web API per foto HD + ngjyra
-        if results and results[0].get('cf_group'):
-            detail = web_client.get_product_detail(results[0]['cf_group'])
-            print(f"Web: {detail.get('name')} - {detail.get('price')} L")
-            print(f"Colors: {[c['name'] for c in detail.get('colors',[])]}")
-            for img in detail.get('images',[])[:3]:
-                print(f"Foto: {img['hd']}")
+    node /home/openclaw/.openclaw/workspace-melisa/scripts/web_client.js search "FJALA"
 
-## KUR KLIENTI KËRKON PRODUKT (tekst)
+Shembull per xhaketa:
 
-PËRDOR web_client (foto HD + emra shqip) + dis_client (stok + porosi):
+    node /home/openclaw/.openclaw/workspace-melisa/scripts/web_client.js search "xhakete"
 
-    import sys
-    sys.path.insert(0, "/home/openclaw/.openclaw/workspace-melisa/scripts")
-    import web_client, dis_client
+Per detaje te nje produkti (ngjyra, masa, foto):
 
-    # Kerko ne WEB per foto + emra te bukur
-    r = web_client.search_by_category("FJALA")
-    for p in r.get("products", [])[:5]:
-        d = web_client.get_product_detail(p["slug"])
-        print(d["name"], "-", d["price"], "L")
-        print("Ngjyra:", [c["name"] for c in d.get("colors",[])])
-        for img in d.get("images",[])[:3]:
-            print("Foto:", img["thumb"])
-        print("URL:", d["web_url"])
+    node /home/openclaw/.openclaw/workspace-melisa/scripts/web_client.js detail "SLUG"
 
-    # Nese web nuk ka rezultate, kerko ne DIS
-    if not r.get("products"):
-        results = dis_client.search_items(q="FJALA", per_page=10)
+Per koleksion specifik:
 
-Nëse 0 rezultate, provo fjalë tjetër (psh "kostum" → "xhaketë").
+    node /home/openclaw/.openclaw/workspace-melisa/scripts/web_client.js collection "xhaketa"
+
+Per kategorite:
+
+    node /home/openclaw/.openclaw/workspace-melisa/scripts/web_client.js categories
+
+RREGULLA:
+- GJITHMONE kerko me web_client.js PARA se te sugjerosh produkte
+- KURRE mos shpik emra, cmime, ose ngjyra nga imagjinata
+- Produktet jane SAKTESISHT ato qe sheh klienti ne zeroabsolute.com
+- Nese nuk gjen, provo fjale te perafert (xhaketa→xhakete, pantallona→pants)
+- Nese ende nuk gjen, them: "Momentalisht nuk kemi [X], por kam [alternative]..."
 
 ## FOTO PRODUKTI (KRITIK!)
 
