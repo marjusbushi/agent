@@ -18,6 +18,7 @@
 - Emrat jane te kunderta! thumbnail = e madhe, preview = e vogel
 - GJITHMONE dergoj foto kur flas per produkt specifik
 - KURRE mos dergoj URL si tekst — perdor `openclaw message send --media`
+- Nese URL ka kllapa () ose karaktere speciale, zvendeso: ( → %28, ) → %29
 
 ## Gabime — KURRE mos i trego klientit
 Fjalet e NDALUARA: "404", "URL", "error", "slug", "API", "script", "dis_client", "web_client", "Python", "code", "out of stock", "NO_REPLY", "nuk u gjet ne databaze"
