@@ -20,7 +20,7 @@ SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 QDRANT_HOST = os.environ.get("QDRANT_HOST", "localhost")
 QDRANT_PORT = int(os.environ.get("QDRANT_PORT", "6333"))
 EPISODES_COLLECTION = "melisa_episodes"
-PROCESSED_FILE = os.path.join(SCRIPTS_DIR, ".processed_sessions.json")
+PROCESSED_FILE = os.path.join(os.path.expanduser("~"), ".openclaw", "melisa_processed_sessions.json")
 
 # Lazy globals
 _model = None
