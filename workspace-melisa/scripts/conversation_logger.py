@@ -61,33 +61,70 @@ def save_processed_id(session_id):
         json.dump(list(ids), f)
 
 
+SESSIONS_DIR = os.environ.get(
+    "OPENCLAW_SESSIONS_DIR",
+    os.path.expanduser("~/.openclaw/agents/melisa/sessions")
+)
+
+
 def get_melisa_sessions():
-    """Merr sessions nga OpenClaw CLI."""
-    try:
-        result = subprocess.run(
-            ["openclaw", "sessions", "--agent", "melisa", "--json"],
-            capture_output=True, text=True, timeout=30
-        )
-        if result.returncode == 0:
-            data = json.loads(result.stdout)
-            return data.get("sessions", [])
-    except Exception as e:
-        print(f"  Gabim sessions: {e}")
-    return []
+    """Merr sessions nga JSONL files ne sessions dir."""
+    sessions = []
+    if not os.path.isdir(SESSIONS_DIR):
+        print(f"  Sessions dir nuk ekziston: {SESSIONS_DIR}")
+        return sessions
+
+    for fname in os.listdir(SESSIONS_DIR):
+        if not fname.endswith(".jsonl"):
+            continue
+        if ".reset." in fname:
+            continue  # Skip archived sessions
+
+        fpath = os.path.join(SESSIONS_DIR, fname)
+        session_id = fname.replace(".jsonl", "")
+        mtime = os.path.getmtime(fpath)
+        size = os.path.getsize(fpath)
+
+        sessions.append({
+            "sessionId": session_id,
+            "updatedAt": int(mtime * 1000),
+            "filePath": fpath,
+            "fileSize": size,
+        })
+
+    return sessions
 
 
-def get_session_history(session_id):
-    """Merr historine e bisedes nga OpenClaw."""
+def get_session_history(session_file):
+    """Lexo mesazhet nga JSONL session file."""
+    messages = []
     try:
-        result = subprocess.run(
-            ["openclaw", "sessions", "history", "--session-id", session_id, "--json"],
-            capture_output=True, text=True, timeout=30
-        )
-        if result.returncode == 0:
-            return json.loads(result.stdout)
+        with open(session_file) as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                entry = json.loads(line)
+                if entry.get("type") != "message":
+                    continue
+
+                msg = entry.get("message", {})
+                role = msg.get("role", "")
+                content = msg.get("content", "")
+
+                if isinstance(content, list):
+                    texts = []
+                    for c in content:
+                        if isinstance(c, dict) and c.get("type") == "text" and c.get("text"):
+                            texts.append(c["text"])
+                    content = " ".join(texts)
+
+                if role in ("user", "assistant") and content and len(content) > 5:
+                    messages.append({"role": role, "content": content})
     except Exception as e:
-        print(f"  Gabim history: {e}")
-    return None
+        print(f"  Gabim reading {session_file}: {e}")
+
+    return messages
 
 
 def summarize_conversation(messages):
@@ -131,12 +168,12 @@ def process_session(session):
     if age_min < 30:
         return False  # Ende aktive
 
-    # Merr historine
-    history = get_session_history(session_id)
-    if not history:
+    # Merr historine nga JSONL file
+    file_path = session.get("filePath", "")
+    if not file_path or not os.path.exists(file_path):
         return False
 
-    messages = history if isinstance(history, list) else history.get("messages", [])
+    messages = get_session_history(file_path)
     if len(messages) < 2:
         return False  # Shume e shkurter
 
