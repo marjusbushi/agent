@@ -35,8 +35,15 @@ def _request(endpoint, params=None):
 
     url = f"{BASE_URL}{endpoint}"
     if params:
-        # Filtro vlerat None
-        clean = {k: v for k, v in params.items() if v is not None}
+        # Filtro vlerat None, konverto bool ne 1/0 per Laravel
+        clean = {}
+        for k, v in params.items():
+            if v is None:
+                continue
+            if isinstance(v, bool):
+                clean[k] = "1" if v else "0"
+            else:
+                clean[k] = v
         if clean:
             url += "?" + urllib.parse.urlencode(clean)
 
