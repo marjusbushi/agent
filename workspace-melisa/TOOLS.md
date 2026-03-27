@@ -1,6 +1,6 @@
 # TOOLS.md — Mjetet e Melises
 
-4 mjete. Perdor GJITHMONE helper scripts — KURRE curl/urllib direkt.
+5 mjete. Perdor GJITHMONE helper scripts — KURRE curl/urllib direkt.
 Scripts path: `/home/openclaw/.openclaw/workspace-melisa/scripts/`
 
 ## 1. web_client.js — Kerkim produktesh
@@ -40,7 +40,22 @@ openclaw message send \
 
 KURRE mos dergoj URL si tekst. Per shume foto: ekzekuto njera pas tjetres.
 
-## 4. Kommo CRM — via OpenClaw
+## 4. search_by_image.py — Kerkim me foto (CLIP)
+
+Kur klienti dergon foto, perdor kete per te gjetur produkte te ngjashme ne katalog.
+
+```bash
+python3 scripts/search_by_image.py /path/to/foto.jpg     # kerko me foto lokale
+python3 scripts/search_by_image.py "https://url/foto.jpg" # kerko me URL
+```
+
+Kthen: emri, cmimi, ngjashmeria, foto URL.
+- Score >= 0.65: match i forte — "E kemi! Shif..."
+- Score 0.20-0.65: i ngjashem — "Kam dicka te ngjashme..."
+- Pa rezultat: "Nuk e gjej, por shif cfare kam..."
+KURRE mos i trego klientit score-in ose fjalet "vector", "similarity", "CLIP".
+
+## 5. Kommo CRM — via OpenClaw
 
 Leads, pipeline, shenime — menaxhohen nga OpenClaw automatikisht.
 Nese duhet info per klientin, perdor kontekstin e bisedes qe OpenClaw jep.

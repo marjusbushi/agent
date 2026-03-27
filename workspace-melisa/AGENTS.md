@@ -4,6 +4,7 @@
 
 1. Pershendet (shih SOUL.md)
 2. Kupto cfare kerkon — pyet nese nuk eshte e qarte
+2b. Nese klienti dergon FOTO → kerko me `search_by_image.py` (CLIP)
 3. Kerko produkte me `web_client.js search "fjala"`
 4. Pershkruaj si njeri (KURRE lista, pipe "|", emoji numrash)
 5. Dergoj foto me `openclaw message send --media`

@@ -4,6 +4,7 @@ Base URL: https://stage.zeroabsolute.dev/api/bot/v1
 Auth: Sanctum token (DIS_BOT_TOKEN)
 """
 import os
+import sys
 import json
 import urllib.request
 import urllib.parse
@@ -212,6 +213,29 @@ def cancel_order(serial):
 
 
 # ============================================================
+# IMAGE SEARCH — Kerkim me foto (CLIP + Qdrant)
+# ============================================================
+
+def search_by_image(image_path, top_k=5):
+    """
+    Kerko produkte te ngjashme me nje foto.
+    Perdor CLIP per encoding dhe Qdrant per vector search.
+
+    Args:
+        image_path: path i fotos (file lokal ose URL)
+        top_k: sa rezultate max (default 5)
+
+    Kthen liste me produkte, secili ka:
+        name, rate, category_name, score, image_url, image_url_full, cf_group, sku
+    """
+    scripts_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.insert(0, scripts_dir)
+    import search_by_image as sbi
+
+    return sbi.find_similar(image_path, top_k=top_k)
+
+
+# ============================================================
 # HELPERS — Formatim per Melisa
 # ============================================================
 
@@ -252,3 +276,28 @@ def format_product_for_display(item):
     result["availability_text"] = avail_map.get(result["availability"], result["availability"])
 
     return result
+
+
+# ============================================================
+# CLI
+# ============================================================
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Perdorim: python3 dis_client.py <komande> [args]")
+        print("  search <fjala>          — kerko produkte me tekst")
+        print("  image-search <foto>     — kerko produkte me foto (CLIP)")
+        sys.exit(1)
+
+    cmd = sys.argv[1]
+    if cmd == "search" and len(sys.argv) > 2:
+        results = search_items(q=sys.argv[2], per_page=5)
+        for item in results.get("data", results) if isinstance(results, dict) else results:
+            d = format_product_for_display(item)
+            print(f"  {d['name']} — {d['price']}")
+    elif cmd == "image-search" and len(sys.argv) > 2:
+        results = search_by_image(sys.argv[2], top_k=5)
+        for r in results:
+            print(f"  {r['name']} — {r['rate']} L (score: {r['score']})")
+    else:
+        print(f"Komande e panjohur: {cmd}")
