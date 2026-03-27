@@ -143,6 +143,15 @@ async function getCollections() {
     return r?.collections || [];
 }
 
+// --- Konverto URL ne imazh te plote (heq /conversions/ dhe -thumbnail/-preview) ---
+function toFullImage(url) {
+    if (!url) return "";
+    return url
+        .replace("/conversions/", "/")
+        .replace(/-thumbnail\.(jpg|jpeg|png|webp)/i, ".$1")
+        .replace(/-preview\.(jpg|jpeg|png|webp)/i, ".$1");
+}
+
 // --- Formato per Melisa ---
 function formatForMelisa(product) {
     const price = product.price || 0;
@@ -155,7 +164,11 @@ function formatForMelisa(product) {
     }
 
     const colors = (product.colors || []).map(c => c.value || c.name).filter(Boolean);
-    const thumbnail = product.thumbnail || product.image || (product.images && product.images[0] && product.images[0].thumb) || "";
+
+    // Foto e plote (jo thumbnail/preview)
+    const firstImage = product.thumbnail || product.image ||
+        (product.images && product.images[0] && (product.images[0].thumb || product.images[0].url)) || "";
+    const fullImage = toFullImage(firstImage);
 
     return {
         name: product.name || "",
@@ -165,8 +178,9 @@ function formatForMelisa(product) {
         category: product.category || "",
         in_stock: product.in_stock !== false,
         colors: colors,
-        thumbnail: thumbnail,
-        images: (product.images || []).map(img => img.thumb || img.url).filter(Boolean)
+        thumbnail: fullImage,
+        image_full: fullImage,
+        images: (product.images || []).map(img => toFullImage(img.thumb || img.url)).filter(Boolean)
     };
 }
 
