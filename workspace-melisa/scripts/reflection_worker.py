@@ -28,14 +28,18 @@ QDRANT_PORT = int(os.environ.get("QDRANT_PORT", "6333"))
 EPISODES_COLLECTION = "melisa_episodes"
 FEEDBACK_COLLECTION = "melisa_feedback"
 
-# Anthropic API per reflection (same key as NeMo proxy)
+# Anthropic API per reflection
 ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 if not ANTHROPIC_KEY:
+    # Lexo nga .env file
+    env_path = os.path.expanduser("~/.openclaw/.env")
     try:
-        auth_path = os.path.expanduser("~/.openclaw/agents/melisa/agent/auth-profiles.json")
-        with open(auth_path) as f:
-            auth = json.load(f)
-            ANTHROPIC_KEY = auth.get("anthropic", {}).get("apiKey", "")
+        with open(env_path) as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("ANTHROPIC_API_KEY="):
+                    ANTHROPIC_KEY = line.split("=", 1)[1].strip()
+                    break
     except Exception:
         pass
 
