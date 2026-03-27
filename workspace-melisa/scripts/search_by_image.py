@@ -54,7 +54,10 @@ def encode_image(image_source):
     if image_source.startswith("http://") or image_source.startswith("https://"):
         tmp = tempfile.NamedTemporaryFile(suffix=".jpg", delete=False)
         try:
-            urllib.request.urlretrieve(image_source, tmp.name)
+            req = urllib.request.Request(image_source, headers={"User-Agent": "MelisaBot/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                tmp.write(resp.read())
+            tmp.flush()
             img = Image.open(tmp.name).convert("RGB")
         finally:
             tmp.close()
@@ -83,15 +86,16 @@ def find_similar(image_source, top_k=8, threshold=0.20):
     vector = encode_image(image_source)
     client = _get_qdrant()
 
-    results = client.search(
+    from qdrant_client.models import models
+    results = client.query_points(
         collection_name=COLLECTION,
-        query_vector=vector,
+        query=vector,
         limit=top_k,
         score_threshold=threshold,
     )
 
     items = []
-    for hit in results:
+    for hit in results.points:
         p = hit.payload or {}
         items.append({
             "item_id": p.get("item_id"),
