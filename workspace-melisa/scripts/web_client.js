@@ -165,10 +165,12 @@ function formatForMelisa(product) {
 
     const colors = (product.colors || []).map(c => c.value || c.name).filter(Boolean);
 
-    // Foto e plote (jo thumbnail/preview)
-    const firstImage = product.thumbnail || product.image ||
-        (product.images && product.images[0] && (product.images[0].thumb || product.images[0].url)) || "";
-    const fullImage = toFullImage(firstImage);
+    // Foto me cilesi: `image` field (-thumbnail.jpg = 275KB) eshte me e madhe se `thumbnail` (-preview.jpg = 21KB)
+    // Emrat jane te kunderta: -thumbnail.jpg eshte FOTO E MADHE, -preview.jpg eshte IKONE
+    const firstImage = product.image ||
+        (product.images && product.images[0] && (product.images[0].url || product.images[0].thumb)) ||
+        product.thumbnail || "";
+    const fullImage = firstImage; // Perdor direkt, pa konvertim — -thumbnail.jpg eshte OK per Telegram
 
     return {
         name: product.name || "",
